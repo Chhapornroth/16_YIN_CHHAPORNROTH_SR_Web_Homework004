@@ -1,7 +1,7 @@
 import { Plus, Target } from "lucide-react";
 import React, { useState } from "react";
 
-export default function AddNewProjectComponent({handleAddTask}) {
+export default function AddNewProjectComponent({ handleAddTask }) {
   const [projectName, setProjectName] = useState("");
   const [dueDate, setDueDate] = useState("");
   const [progress, setProgress] = useState("");
@@ -14,24 +14,37 @@ export default function AddNewProjectComponent({handleAddTask}) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setNameEmpty (projectName.trim().length <= 0);
-    setDateIsEmpty (dueDate.trim().length <= 0);
-    setProgressIsEmpty (progress.trim().length <= 0);
-    setDateIsError(new Date(dueDate.toString) < new Date());
-    if(nameIsEmpty && dateIsEmpty && progressIsEmpty && dateIsError){
+  
+    const isNameEmpty = projectName.trim().length <= 0;
+    const isDateEmpty = dueDate.trim().length <= 0;
+    const isProgressEmpty = progress.trim().length <= 0;
+  
+    const selectedDate = new Date(dueDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); 
+    const isDateInvalid = selectedDate < today;
+  
+    setNameEmpty(isNameEmpty);
+    setDateIsEmpty(isDateEmpty);
+    setProgressIsEmpty(isProgressEmpty);
+    setDateIsError(isDateInvalid);
+  
+    if (!isNameEmpty && !isDateEmpty && !isProgressEmpty && !isDateInvalid) {
       const newProject = {
-        projectName : projectName,
-        dueDate : dueDate,
-        progress : progress,
-        description : description
-      }
-      handleAddTask((prevProject) => [...prevProject, newProject])
-      setProjectName ('');
-      setDueDate ('');
-      setProgress ('Select progress');
-      setDescription ('');
-    }    
-  }
+        projectName,
+        dueDate,
+        progress,
+        description: description.trim() || "Lorem ipsum dolor sit amet consectetur adipisicing elit. Magnam unde atque laborum quae laudantium vel tenetur rem a esse. Deleniti suscipit ab esse soluta architecto, aperiam commodi voluptatibus. Sint, blanditiis."
+      };
+      handleAddTask((prevProjects) => [...prevProjects, newProject]);
+  
+      setProjectName('');
+      setDueDate('');
+      setProgress('');
+      setDescription('');
+    }
+  };
+  
 
   return (
     <div>
@@ -96,7 +109,7 @@ export default function AddNewProjectComponent({handleAddTask}) {
                     placeholder="Type Project Name"
                     onChange={(e) => (setProjectName(e.target.value))}
                   />
-                 {nameIsEmpty && (<p className="text-red-500">* Project name is required.</p>)}
+                  {nameIsEmpty && (<p className="text-red-500">* Project name is required.</p>)}
                 </div>
 
                 <div className="col-span-2">
@@ -105,7 +118,7 @@ export default function AddNewProjectComponent({handleAddTask}) {
                     className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                   >
                     Due Date <span className="text-red-500"> *</span>
-                  </label>                        
+                  </label>
                   <input
                     type="date"
                     name="dueDate"
